@@ -9,9 +9,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const generateAccessAndRefreshTokens = async(userId) =>{
     try {
         const user = await User.findById(userId);
-        const accessToken = user.genrateAccessToken();
+        const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
-
+        
         user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
 
@@ -106,14 +106,15 @@ const loginUser = asyncHandler(async (req, res) => {
     if(!isPasswordValid){
         throw new ApiError(401, "Invalid user credentials");
     }
-
+    
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
-
+    // console.log("accessToken", accessToken);
+    // console.log("refreshToken", refreshToken);
     const options = {
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === "production"
     }
 
     return res
@@ -135,17 +136,15 @@ const loginUser = asyncHandler(async (req, res) => {
 const logoutUser = asyncHandler(async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,{
-            $set:{
-                refreshToken: undefined
-            }
+            $unset: { refreshToken: "" } // Use $unset to remove the field
         },{
             new: true
         }
     )
 
     const options = {
-    httpOnly: true,
-    secure: true,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Use secure cookies in production
     }
 
     return res
