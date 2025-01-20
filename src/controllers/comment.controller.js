@@ -5,8 +5,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getVideoComments = asyncHandler(async (req, res) => {
-  //TODO: get all comments for a video
-  const { videoId } = req.params;
+    // can use *mongooseAggregatePaginate* later to implement pagination for more cleaner and efficient code (in case of large number of comments)
+    
+    // get all comments for a video
+    const { videoId } = req.params;
   const { page = 1, limit = 10 } = req.query;
 
   const pageNum = parseInt(page, 10);
