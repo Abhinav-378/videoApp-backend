@@ -58,13 +58,13 @@ const getVideoComments = asyncHandler(async (req, res) => {
     return res
     .status(200)
     .json(
-        new ApiResponse(200, "Comments retrieved successfully", {
+        new ApiResponse(200, {
             totalComments,
             page: pageNum,
             limit: limitNum,
             totalPages: Math.ceil(totalComments / limitNum),
             comments
-        })
+        }, "Comments retrieved successfully")
     )
 });
 
@@ -81,7 +81,7 @@ const addComment = asyncHandler(async (req, res) => {
   await comment.save();
   return res
     .status(201)
-    .json(new ApiResponse(201, "Comment added successfully", comment));
+    .json(new ApiResponse(201, comment, "Comment added successfully"));
 });
 
 const updateComment = asyncHandler(async (req, res) => {
@@ -100,7 +100,7 @@ const updateComment = asyncHandler(async (req, res) => {
   await comment.save();
   return res
     .status(200)
-    .json(new ApiResponse(200, "Comment updated successfully", comment));
+    .json(new ApiResponse(200, comment, "Comment updated successfully"));
 });
 
 const deleteComment = asyncHandler(async (req, res) => {
@@ -117,7 +117,7 @@ const deleteComment = asyncHandler(async (req, res) => {
   await comment.deleteOne(); // comment.remove() -> deprecated
   return res
     .status(200)
-    .json(new ApiResponse(200, "Comment deleted successfully", comment));
+    .json(new ApiResponse(200, comment, "Comment deleted successfully"));
 });
 
 export { getVideoComments, addComment, updateComment, deleteComment };
