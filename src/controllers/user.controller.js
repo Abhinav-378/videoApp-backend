@@ -90,7 +90,7 @@ const registerUser = asyncHandler(async (req, res) => {
     if(!createdUser){
         throw new ApiError(500, "Something went wrong while registering user");
     }
-    
+
     return res.status(201).json(
         new ApiResponse(200, createdUser, "User registered successfully")
     )
@@ -121,7 +121,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
     // console.log("accessToken", accessToken);
     // console.log("refreshToken", refreshToken);
-
+    // console.log("loggedInUser", loggedInUser);
     return res
     .status(200)
     .cookie("accessToken", accessToken, options)
