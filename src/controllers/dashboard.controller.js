@@ -11,7 +11,7 @@ import mongoose from "mongoose"
     const userId = req.user;
     const videos = await Video.find({owner: userId});
     const totalVideos = videos.length;
-    const totalViews = totalVideos.reduce((acc, video) => acc + video.views, 0);
+    const totalViews = videos.reduce((acc, video) => acc + video.views, 0);
     const totalLikes = await Like.countDocuments({video: {$in : videos}});
     const totalSubscribers = await Subscription.countDocuments({channel: userId});
     const stats = {
@@ -22,7 +22,7 @@ import mongoose from "mongoose"
     }
     return res
     .status(200)
-    .json(ApiResponse(200, stats, "Channel stats fetched successfully"));
+    .json(new ApiResponse(200, stats, "Channel stats fetched successfully"));
     
  })
  
@@ -33,11 +33,11 @@ import mongoose from "mongoose"
     if(videos.length === 0){
         return res
         .status(200)
-        .json(ApiResponse(200, [], "No videos found"))
+        .json(new ApiResponse(200, [], "No videos found"))
     }
     return res
     .status(200)
-    .json(ApiResponse(200, videos, "Videos fetched successfully"));
+    .json(new ApiResponse(200, videos, "Videos fetched successfully"));
  })
  
  export {
