@@ -1,5 +1,6 @@
 import mongoose, {isValidObjectId} from "mongoose"
  import {Like} from "../models/like.model.js"
+ import { Video } from "../models/video.model.js"
  import {ApiError} from "../utils/ApiError.js"
  import {ApiResponse} from "../utils/ApiResponse.js"
  import {asyncHandler} from "../utils/asyncHandler.js"
@@ -14,12 +15,17 @@ import mongoose, {isValidObjectId} from "mongoose"
     const like = await Like.findOne({video: videoId, likedBy: user._id})
     if(like){
         await like.remove()
+        await Video.findByIdAndUpdate(videoId, { $inc: { likes: -1 } });
         return res.status(200).json(new ApiResponse(200, null, "Like removed successfully"))
     }
     const newLike = await Like.create({
         video: videoId,
         likedBy: user._id
     })
+    if(!newLike){
+        throw new ApiError(500, "Failed to like video")
+    }
+    await Video.findByIdAndUpdate(videoId, { $inc: { likes: 1 } });
     return res
     .status(201)
     .json(new ApiResponse(201, newLike, "Video liked successfully"))
