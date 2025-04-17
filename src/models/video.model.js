@@ -35,6 +35,14 @@ const videoSchema = new Schema(
             type: Boolean,
             default: true,
         },
+        videoFilePublicId: {
+            type: String,
+            required: true,
+        },
+        thumbnailPublicId: {
+            type: String,
+            required: true,
+        },        
         owner:{
             type: Schema.Types.ObjectId,
             ref: "User"

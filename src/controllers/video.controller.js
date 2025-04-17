@@ -4,7 +4,7 @@ import mongoose, {isValidObjectId} from "mongoose"
  import {ApiError} from "../utils/ApiError.js"
  import {ApiResponse} from "../utils/ApiResponse.js"
  import {asyncHandler} from "../utils/asyncHandler.js"
- import {uploadOnCloudinary} from "../utils/cloudinary.js"
+ import {uploadOnCloudinary, deleteFromCloudinary} from "../utils/cloudinary.js"
  
  const formatDuration = (durationInSeconds) => {
     const minutes = Math.floor(durationInSeconds / 60);
@@ -57,6 +57,7 @@ import mongoose, {isValidObjectId} from "mongoose"
     }
     const videoUploadRes = await uploadOnCloudinary(videoFilePath)
     const thumbnailUploadRes = await uploadOnCloudinary(thumbnailPath)
+    // console.log("video: ", videoUploadRes)
     if(!videoUploadRes || !thumbnailUploadRes){
         throw new ApiError(500, "Failed to upload video or thumbnail")
     }
@@ -64,7 +65,9 @@ import mongoose, {isValidObjectId} from "mongoose"
         title,
         description,
         videoFile: videoUploadRes.secure_url,
+        videoFilePublicId: videoUploadRes.public_id,
         thumbnail: thumbnailUploadRes.secure_url,
+        thumbnailPublicId: thumbnailUploadRes.public_id,
         owner: new mongoose.Types.ObjectId(ownerId),
         duration: formatDuration(videoUploadRes.duration),
     })
@@ -128,16 +131,23 @@ import mongoose, {isValidObjectId} from "mongoose"
         throw new ApiError(400, "Invalid video id")
     }
     const video = await Video.findById(videoId)
-    // in future if want to delete cloudinary video file storing public id in db is necessary. For ex.
-    // videoFile: response.secure_url,
-    // videoFilePublicId: response.public_id,
-    // if (video.videoFilePublicId) {
-    //     await cloudinary.uploader.destroy(video.videoFilePublicId, { resource_type: "video" });
-    // }
+    
     if(!video){
         throw new ApiError(404, "Video not found")
     }
-    await video.remove()
+    try {
+        if (video.videoFilePublicId) {
+            await deleteFromCloudinary(video.videoFilePublicId, "video");
+        }
+
+        if (video.thumbnailPublicId) {
+            await deleteFromCloudinary(video.thumbnailPublicId);
+        }
+    } catch (err) {
+        console.error("Error deleting from Cloudinary", err);
+    }
+    // remove the video
+    await Video.findByIdAndDelete(videoId);
     return res
     .status(200)
     .json(new ApiResponse(200,null,"Video Removed Successfully"))
