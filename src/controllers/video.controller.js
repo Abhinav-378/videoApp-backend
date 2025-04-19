@@ -116,6 +116,10 @@ import mongoose, {isValidObjectId} from "mongoose"
         if(!thumbnailUploadRes){
             throw new ApiError(500, "Failed to upload thumbnail")
         }
+        // delete old thumbnail from cloudinary
+        if(video.thumbnailPublicId){
+            await deleteFromCloudinary(video.thumbnailPublicId)
+        }
         video.thumbnail = thumbnailUploadRes.secure_url
     }
     await video.save()
