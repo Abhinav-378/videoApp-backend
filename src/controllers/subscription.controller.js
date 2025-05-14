@@ -15,10 +15,10 @@ import mongoose, {isValidObjectId} from "mongoose"
     }
     const subscription = await Subscription.findOne({channel: channelId, subscriber: user._id});
     if(subscription){
-        await subscription.remove()
+        await subscription.deleteOne()
         return res.status(200).json(new ApiResponse(200, null, "Subscription removed successfully"))
     }
-    const newSubscription = await Subscription.create({ channe: channelId, subscriber: user._id })
+    const newSubscription = await Subscription.create({ channel: channelId, subscriber: user._id })
     return res
     .status(201)
     .json(new ApiResponse(201, newSubscription, "Subscription added successfully"))
