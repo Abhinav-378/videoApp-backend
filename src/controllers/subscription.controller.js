@@ -31,7 +31,7 @@ import mongoose, {isValidObjectId} from "mongoose"
     if(!isValidObjectId(channelId)){
         throw new ApiError(400, "Invalid channel id");
     }
-    const subscribers = await Subscription.find({channel: channelId}).populate("subscriber", "name username avatar");
+    const subscribers = await Subscription.find({channel: channelId}).populate("subscriber", "name username avatar ");
     const subscriberList = subscribers.map(subscription => subscription.subscriber)
     return res
     .status(200)
@@ -41,11 +41,12 @@ import mongoose, {isValidObjectId} from "mongoose"
  
  // controller to return channel list to which user has subscribed
  const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params
-    if(!isValidObjectId(subscriberId)){
+    const { channelId } = req.params
+    if(!isValidObjectId(channelId)){
+        console.log("Invalid subscriber id", channelId);
         throw new ApiError(400, "Invalid subscriber id");
     }
-    const channels = await Subscription.find({subscriber: subscriberId}).populate("channel", "name username avatar");
+    const channels = await Subscription.find({subscriber: channelId}).populate("channel", "name username avatar fullName");
     // const channels = await Subscription.aggregate([
     //     {
     //         $match:{
