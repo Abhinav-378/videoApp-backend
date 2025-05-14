@@ -173,11 +173,24 @@ import mongoose, {isValidObjectId} from "mongoose"
     .json(new ApiResponse(200, video, "Video publish status updated successfully"))
  })
  
+ const getAllVideosByChannelId = asyncHandler(async (req, res) => {
+    const { channelId } = req.params;
+    if(!isValidObjectId(channelId)){
+        throw new ApiError(400, "Invalid channel id");
+    }
+    const videos = await Video.find({ owner: channelId, isPublished: true })
+        .sort({ createdAt: -1 }); // Sort by creation date, most recent first
+    if (!videos || videos.length === 0) {
+        return res.status(404).json(new ApiResponse(404, null, "No videos found for this channel"));
+    }
+    return res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"));
+ })
  export {
      getAllVideos,
      publishAVideo,
      getVideoById,
      updateVideo,
      deleteVideo,
-     togglePublishStatus
+     togglePublishStatus,
+     getAllVideosByChannelId
  }
