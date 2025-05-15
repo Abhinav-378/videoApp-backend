@@ -14,6 +14,7 @@ const DEFAULT_AVATAR_URL = "https://res.cloudinary.com/dwpegmm0x/image/upload/v1
 const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+    sameSite: "None", // Use 'None' to allow cross-site cookies
 }
 
 const generateAccessAndRefreshTokens = async(userId) =>{
