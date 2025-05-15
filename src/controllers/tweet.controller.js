@@ -65,7 +65,7 @@ import mongoose, { isValidObjectId } from "mongoose"
             }
         },
         {
-            $sort: {createdAt: -1}
+            $sort: {updatedAt: -1}
         }
     ]);
     if(tweets.length === 0){
