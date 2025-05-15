@@ -14,6 +14,7 @@ const uploadOnCloudinary = async (localFilePath) => {
         //upload file on cloudinary
         const response = await cloudinary.uploader.upload(localFilePath,{
             resource_type: "auto",
+            secure: true,
         });
 
         //file has bee uploaded successfully
