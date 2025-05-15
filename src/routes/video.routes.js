@@ -12,12 +12,17 @@ import { Router } from 'express';
  import {upload} from "../middlewares/multer.middleware.js"
  
  const router = Router();
- router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
+
+ // don't require verifyJWT(public routes)
+ router.route("/c/:channelId").get(getAllVideosByChannelId); 
+ router.route("/:videoId").get(getVideoById); 
  
+ // protected routes
  router
      .route("/")
-     .get(getAllVideos)
+     .get(verifyJWT, getAllVideos)
      .post(
+        verifyJWT,
          upload.fields([
              {
                  name: "videoFile",
@@ -34,11 +39,9 @@ import { Router } from 'express';
  
  router
      .route("/:videoId")
-     .get(getVideoById)
-     .delete(deleteVideo)
-     .patch(upload.single("thumbnail"), updateVideo);
+     .delete(verifyJWT, deleteVideo)
+     .patch(verifyJWT, upload.single("thumbnail"), updateVideo);
  
- router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
- router.route("/c/:channelId").get(getAllVideosByChannelId); // Get all videos by channelId
+ router.route("/toggle/publish/:videoId").patch(verifyJWT, togglePublishStatus);
  
  export default router
