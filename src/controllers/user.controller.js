@@ -11,10 +11,12 @@ import mongoose from "mongoose";
 
 const DEFAULT_AVATAR_URL = "https://res.cloudinary.com/dwpegmm0x/image/upload/v1735559628/tdu9fhmslrlknpm4eq5g.webp";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const options = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-    sameSite: "None", // Use 'None' to allow cross-site cookies
+    secure: isProduction, // true only in production
+    sameSite: isProduction ? "None" : "Lax", // 'None' for cross-site, 'Lax' for local dev
 }
 
 const generateAccessAndRefreshTokens = async(userId) =>{
