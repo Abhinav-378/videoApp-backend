@@ -437,7 +437,18 @@ const getWatchHistory = asyncHandler(async(req, res) => {
             }
         }
     ]);
+    //  const user = await User.findById(req.user._id).select("watchHistory");
+    // const videoIds = user.watchHistory.map(id => id.toString());
+    // const videos = await Video.find({ _id: { $in: videoIds } }).populate("owner", "fullName username avatar");
+    //   same as above aggregate query
 
+    const originalOrder = (await User.findById(req.user._id)).watchHistory.map(id => id.toString());
+
+    // Reorder
+    const sortedHistory = originalOrder
+        .map(id => user[0].watchHistory.find(v => v._id.toString() === id))
+        .filter(Boolean); // remove undefined in case of any mismatch
+    user[0].watchHistory = sortedHistory;
     return res
         .status(200)
         .json(
@@ -462,9 +473,9 @@ const updateWatchHistory = asyncHandler(async(req, res) => {
     }
     const videoObjectId = new mongoose.Types.ObjectId(videoId);
     user.watchHistory = user.watchHistory.filter(
-        (id) => id.toString() !== videoObjectId.toString()
+        (id) => id.toString() !== videoId
     );
-    user.watchHistory.push(videoObjectId); 
+    user.watchHistory.unshift(videoObjectId); // adds to the beginning
     
     await user.save({ validateBeforeSave: false });
     return res
