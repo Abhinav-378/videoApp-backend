@@ -443,5 +443,29 @@ const getWatchHistory = asyncHandler(async(req, res) => {
     )
 });
 
+const updateWatchHistory = asyncHandler(async(req, res) => {
+    const { videoId } = req.body;
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken , changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUserCoverImage, getUserChannelProfile, getWatchHistory };
+    if(!videoId){
+        throw new ApiError(400, "Please provide video id");
+    }
+
+    const user = await User.findById(req.user._id);
+    if(!user){
+        throw new ApiError(404, "User not found");
+    }
+    const videoObjectId = new mongoose.Types.ObjectId(videoId);
+    user.watchHistory = user.watchHistory.filter(
+        (id) => id.toString() !== videoObjectId.toString()
+    );
+    user.watchHistory.push(videoObjectId); 
+    
+    await user.save({ validateBeforeSave: false });
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user.watchHistory, "Watch History updated successfully")
+    )
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken , changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUserCoverImage, getUserChannelProfile, getWatchHistory, updateWatchHistory };
