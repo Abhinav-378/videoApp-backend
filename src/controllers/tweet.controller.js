@@ -33,6 +33,7 @@ import mongoose, { isValidObjectId } from "mongoose"
     }
     // const tweets = await Tweet.find({owner: userId})
     // .populate("owner", "name username avatar") //replaces the owner field (just an ObjectId) with actual user data
+    // // .populate("likes", "user") //replaces the likes field (just an ObjectId) with actual user data
     // .sort({createdAt: -1})
     const tweets = await Tweet.aggregate([
         {
@@ -52,15 +53,33 @@ import mongoose, { isValidObjectId } from "mongoose"
             $unwind: "$ownerDetails"
         },
         {
+            $lookup:{
+                from: "likes",
+                localField: "_id",
+                foreignField: "tweet",
+                as: "likesDetails"
+            }
+        },
+        {
+            $addFields:{
+                likesCount: {
+                    $size: "$likesDetails"
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 content: 1,
                 createdAt: 1,
                 updatedAt: 1,
+                likesCount: 1,
+                likesDetails: 1,
                 owner:{
                     name: "$ownerDetails.name",
                     username: "$ownerDetails.username",
-                    avatar: "$ownerDetails.avatar"
+                    avatar: "$ownerDetails.avatar",
+                    userId: "$ownerDetails._id"
                 }
             }
         },
