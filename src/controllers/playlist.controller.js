@@ -121,7 +121,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     if(!playlist){
         throw new ApiError(404, "Playlist not found")
     }
-    await playlist.remove()
+    await playlist.deleteOne()
     return res
     .status(200)
     .json(new ApiResponse(200, {}, "Playlist deleted successfully"))
