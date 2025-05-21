@@ -6,14 +6,14 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const {name, description} = req.body
+    const {name, description=""} = req.body
     const user = req.user
-    if(!name?.trim() || !description?.trim()){
-        throw new ApiError(400, "Name and description are required")
+    if(!name?.trim()){
+        throw new ApiError(400, "Name is required")
     }
     const playlist = await Playlist.create({
-        name,
-        description,
+        name: name.trim(),
+        description: description?.trim() || "",
         owner: user._id
     })
 
@@ -103,7 +103,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     if(!playlist.videos.includes(videoId)){
         throw new ApiError(404, "Video not found in playlist")
     }
-    playlist.videos = playlist.videos.filter(vid => vid !== videoId)
+    playlist.videos = playlist.videos.filter(vid => vid.toString() !== videoId.toString())
     await playlist.save()
     return res
     .status(200)
