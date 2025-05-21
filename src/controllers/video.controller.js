@@ -187,6 +187,41 @@ import mongoose, {isValidObjectId} from "mongoose"
     }
     return res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"));
  })
+ const getRandomVideos = asyncHandler(async (req, res) => {
+    const { limit = 24 } = req.query;
+    console.log("random videos func called")
+    // Get all published videos
+    const videos = await Video.find({ isPublished: true })
+        .populate("owner", "_id username avatar fullName")
+        .select("_id title thumbnail views duration createdAt owner ")
+        .lean(); // Convert to plain JS object for better performance
+    
+    // Shuffle array using Fisher-Yates algorithm
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    const randomVideos = shuffleArray(videos).slice(0, parseInt(limit));
+
+    if (!randomVideos?.length) {
+        throw new ApiError(404, "No videos found");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200, 
+                randomVideos,
+                "Random videos fetched successfully"
+            )
+        );
+});
+
  export {
      getAllVideos,
      publishAVideo,
@@ -194,5 +229,6 @@ import mongoose, {isValidObjectId} from "mongoose"
      updateVideo,
      deleteVideo,
      togglePublishStatus,
-     getAllVideosByChannelId
+     getAllVideosByChannelId,
+     getRandomVideos
  }
