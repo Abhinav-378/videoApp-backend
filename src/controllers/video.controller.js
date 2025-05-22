@@ -150,7 +150,7 @@ import mongoose, {isValidObjectId} from "mongoose"
             await deleteFromCloudinary(video.thumbnailPublicId);
         }
     } catch (err) {
-        console.error("Error deleting from Cloudinary", err);
+        // console.error("Error deleting from Cloudinary", err);
     }
     // remove the video
     await Video.findByIdAndDelete(videoId);
@@ -189,7 +189,7 @@ import mongoose, {isValidObjectId} from "mongoose"
  })
  const getRandomVideos = asyncHandler(async (req, res) => {
     const { limit = 24 } = req.query;
-    console.log("random videos func called")
+    // console.log("random videos func called")
     // Get all published videos
     const videos = await Video.find({ isPublished: true })
         .populate("owner", "_id username avatar fullName")
