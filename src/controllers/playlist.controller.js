@@ -55,6 +55,12 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     }
 
     const playlist = await Playlist.findById(playlistId)
+    .populate("owner", "username fullName avatar")
+    .populate({
+        path: "videos",
+        match: { isPublished: true },
+        select: "title thumbnail duration views "
+    })
     if(!playlist){
         throw new ApiError(404, "Playlist not found")
     }
