@@ -222,6 +222,37 @@ import mongoose, {isValidObjectId} from "mongoose"
         );
 });
 
+ const searchVideos = asyncHandler(async (req, res) => {
+    const { q: searchQuery } = req.query;
+
+    if (!searchQuery) {
+        throw new ApiError(400, "Search query is required");
+    }
+
+    const searchRegex = new RegExp(searchQuery, 'i');
+
+    const videos = await Video.find({ isPublished: true })
+        .populate('owner', 'username fullName avatar')
+        .lean();
+
+    const filteredVideos = videos.filter(video => 
+        searchRegex.test(video.title) || 
+        searchRegex.test(video.description) || 
+        searchRegex.test(video.owner?.username) || 
+        searchRegex.test(video.owner?.fullName)
+    );
+    
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200, 
+                filteredVideos,
+                "Videos fetched successfully"
+            )
+        );
+});
+
  export {
      getAllVideos,
      publishAVideo,
@@ -230,5 +261,6 @@ import mongoose, {isValidObjectId} from "mongoose"
      deleteVideo,
      togglePublishStatus,
      getAllVideosByChannelId,
-     getRandomVideos
+     getRandomVideos,
+     searchVideos
  }

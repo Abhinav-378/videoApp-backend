@@ -6,6 +6,7 @@ import {
     getRandomVideos,
     getVideoById,
     publishAVideo,
+    searchVideos,
     togglePublishStatus,
     updateVideo,
 } from "../controllers/video.controller.js"
@@ -16,6 +17,7 @@ const router = Router();
 
 // don't require verifyJWT(public routes)
 router.route("/random").get(getRandomVideos);
+router.route("/search").get(searchVideos);
 router.route("/c/:channelId").get(getAllVideosByChannelId);
 router.route("/:videoId").get(getVideoById);
 // protected routes
