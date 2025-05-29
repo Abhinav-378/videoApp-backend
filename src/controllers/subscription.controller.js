@@ -31,7 +31,7 @@ import mongoose, {isValidObjectId} from "mongoose"
     if(!isValidObjectId(channelId)){
         throw new ApiError(400, "Invalid channel id");
     }
-    const subscribers = await Subscription.find({channel: channelId}).populate("subscriber", "name username avatar ");
+    const subscribers = await Subscription.find({channel: channelId}).populate("subscriber", "fullName username avatar ");
     const subscriberList = subscribers.map(subscription => subscription.subscriber)
     return res
     .status(200)

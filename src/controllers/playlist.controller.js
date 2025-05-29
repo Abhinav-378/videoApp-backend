@@ -59,7 +59,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     .populate({
         path: "videos",
         match: { isPublished: true },
-        select: "title thumbnail duration views "
+        select: "title thumbnail duration views createdAt"
     })
     if(!playlist){
         throw new ApiError(404, "Playlist not found")
