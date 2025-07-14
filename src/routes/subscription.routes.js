@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  checkSubscription,
   getSubscribedChannels,
   getUserChannelSubscribers,
   toggleSubscription,
@@ -13,7 +14,7 @@ router.route("/c/:channelId").get(getSubscribedChannels);
 
 // protected routes
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
+router.route("/c/checkSubscription/:channelId").get(checkSubscription);
 router.route("/c/:channelId").post(toggleSubscription);
 router.route("/u/:channelId").get(getUserChannelSubscribers);
-
 export default router;

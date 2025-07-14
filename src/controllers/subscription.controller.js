@@ -80,9 +80,26 @@ import mongoose, {isValidObjectId} from "mongoose"
     .status(200)
     .json(new ApiResponse(200, channelList, "Subscribed channel list fetched successfully"));
  })
+ const checkSubscription = asyncHandler(async (req, res) => {
+    const { channelId } = req.params;
+    const user = req.user;
+
+    if (!isValidObjectId(channelId)) {
+        throw new ApiError(400, "Invalid channel id");
+    }
+
+    const subscription = await Subscription.findOne({ channel: channelId, subscriber: user._id });
+
+    if(!subscription){
+        return res.status(200).json(new ApiResponse(200, false, "User is not subscribed to this channel"));
+    }
+    return res.status(200).json(new ApiResponse(200, true, "User is subscribed to this channel"));
+    
+ });
  
  export {
      toggleSubscription,
      getUserChannelSubscribers,
-     getSubscribedChannels
+     getSubscribedChannels,
+     checkSubscription
  }
