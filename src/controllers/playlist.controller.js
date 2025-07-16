@@ -111,6 +111,9 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     }
     playlist.videos = playlist.videos.filter(vid => vid.toString() !== videoId.toString())
     await playlist.save()
+    if(playlist.videos.length === 0){
+        await playlist.deleteOne()
+    }
     return res
     .status(200)
     .json(new ApiResponse(200, playlist, "Video removed from playlist successfully"))
