@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Comment } from "../models/comment.model.js";
+import { Like } from "../models/like.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -42,10 +43,25 @@ const getVideoComments = asyncHandler(async (req, res) => {
         $unwind: "$ownerDetails"
     },
     {
+      $lookup:{
+        from: "likes",
+        localField: "_id",
+        foreignField: "comment",
+        as: "likesDetails"
+      }
+    },
+    {
+      $addFields:{
+        likesCount: { $size: "$likesDetails" },
+      }
+    },
+    {
         $project:{
             content: 1,
             createdAt: 1,
             updatedAt: 1,
+            likesCount: 1,
+            likesDetails: 1,
             ownerName: "$ownerDetails.username",
             ownerAvatar: "$ownerDetails.avatar",
             _id: 1
@@ -54,8 +70,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
   ])
 
   const totalComments = await Comment.countDocuments({ video: videoId });
-
-    return res
+  // counting likes in each comment and adding to each comment ele inarray itself
+  return res
     .status(200)
     .json(
         new ApiResponse(200, {
